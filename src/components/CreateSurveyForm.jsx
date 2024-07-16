@@ -24,9 +24,9 @@ const CreateSurveyForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const surveyData = { title, description, questions };
-    // Send surveyData to the backend
+    
     console.log(surveyData);
-    // Reset form
+    
     setTitle('');
     setDescription('');
     setQuestions([{ question: '' }]);

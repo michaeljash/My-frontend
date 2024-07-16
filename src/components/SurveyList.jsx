@@ -22,10 +22,9 @@ function SurveyList() {
     event.preventDefault();
     const formData = new FormData(event.target);
     const answer = formData.get('answer');
-    // You can add further logic here to handle the submission of the answer,
-    // such as sending it to your backend API.
+    
     console.log(`Question ID: ${questionId}, Answer: ${answer}`);
-    // Example: You might want to send the answer to your backend API here.
+    
   };
 
   return (

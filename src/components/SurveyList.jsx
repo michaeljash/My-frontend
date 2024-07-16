@@ -18,16 +18,31 @@ function SurveyList() {
       });
   };
 
+  const handleFormSubmit = (event, questionId) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const answer = formData.get('answer');
+    // You can add further logic here to handle the submission of the answer,
+    // such as sending it to your backend API.
+    console.log(`Question ID: ${questionId}, Answer: ${answer}`);
+    // Example: You might want to send the answer to your backend API here.
+  };
+
   return (
     <div className="survey-list">
       <h2>Survey List</h2>
-      <ul>
-        {surveys.map(survey => (
-          <li key={survey.id}>
-            <strong>{survey.title}</strong> - {survey.description}
-          </li>
-        ))}
-      </ul>
+      {surveys.map(survey => (
+        <div key={survey.id}>
+          <h3>{survey.title}</h3>
+          <p>{survey.description}</p>
+          <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
+            <label htmlFor={`answer-${survey.id}`}>Your Answer:</label>
+            <input type="text" id={`answer-${survey.id}`} name="answer" required />
+            <button type="submit">Submit</button>
+          </form>
+          <hr />
+        </div>
+      ))}
     </div>
   );
 }

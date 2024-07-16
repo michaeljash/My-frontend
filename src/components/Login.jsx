@@ -21,7 +21,7 @@ const Login = ({ setLoggedIn }) => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         setLoggedIn(true);
-        navigate('/'); // Redirect to the Home page after logging in
+        navigate('/'); 
       } else {
         setError('Invalid email or password');
       }

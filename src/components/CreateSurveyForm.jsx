@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 const CreateSurveyForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [userId, setUserId] = useState(''); 
   const [questions, setQuestions] = useState([{ question: '' }]);
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
+  const handleUserIdChange = (e) => setUserId(e.target.value); 
 
   const handleQuestionChange = (index, event) => {
     const newQuestions = [...questions];
@@ -21,15 +23,44 @@ const CreateSurveyForm = () => {
     setQuestions(newQuestions);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const surveyData = { title, description, questions };
     
-    console.log(surveyData);
-    
-    setTitle('');
-    setDescription('');
-    setQuestions([{ question: '' }]);
+    try {
+      const surveyData = {
+        title,
+        description,
+        user: {
+          email: userId  
+        },
+        questions: questions.map(q => ({
+          content: q.question,
+          type: 'default'  
+        }))
+      };
+  
+      const response = await fetch('http://127.0.0.1:5000/surveys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(surveyData),
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Survey created successfully:', data);
+
+        setTitle('');
+        setDescription('');
+        setUserId('');
+        setQuestions([{ question: '' }]);
+      } else {
+        console.error('Failed to create survey');
+      }
+    } catch (error) {
+      console.error('Error creating survey:', error);
+    }
   };
 
   return (
@@ -47,6 +78,13 @@ const CreateSurveyForm = () => {
           placeholder="Description"
           value={description}
           onChange={handleDescriptionChange}
+          required
+        />
+        <input
+          type="text"
+          placeholder="User Email"
+          value={userId}
+          onChange={handleUserIdChange}
           required
         />
         {questions.map((q, index) => (

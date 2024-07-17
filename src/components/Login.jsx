@@ -1,62 +1,52 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const Login = ({ setLoggedIn }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const Login = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const userData = { username, password };
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      // Replace with actual login API endpoint
+      // const response = await fetch('http://localhost:5000/login', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(userData),
+      // });
+
+      // Temporary mock login
+      const response = { ok: true }; // Replace with actual response handling
 
       if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        setLoggedIn(true);
-        navigate('/'); 
+        // Replace with actual redirection logic after successful login
+        localStorage.setItem('loggedIn', 'true');
+        navigate('/surveys'); // Redirect to surveys page after login
       } else {
-        setError('Invalid email or password');
+        console.error('Failed to login:', response.statusText);
       }
     } catch (error) {
-      setError('Error logging in');
+      console.error('Error logging in:', error);
     }
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+        <label>Username:</label>
+        <input type="text" value={username} autoComplete='username' onChange={(e) => setUsername(e.target.value)} required />
+        <label>Password:</label>
+        <input type="password" value={password} autoComplete='password' onChange={(e) => setPassword(e.target.value)} required />
         <button type="submit">Login</button>
       </form>
-      {error && <p>{error}</p>}
     </div>
   );
 };
 
-export default Login;
+export default Login;

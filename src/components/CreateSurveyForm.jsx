@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateSurveyForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [questions, setQuestions] = useState([{ question: '' }]);
+
+  const navigate = useNavigate();
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
@@ -14,19 +17,25 @@ const CreateSurveyForm = () => {
     setQuestions(newQuestions);
   };
 
-  const handleAddQuestion = () => setQuestions([...questions, { question: '' }]);
+  const handleAddQuestion = () => {
+    setQuestions([...questions, { question: '' }]);
+  };
 
   const handleRemoveQuestion = (index) => {
-    const newQuestions = questions.filter((_, i) => i !== index);
+    const newQuestions = [...questions];
+    newQuestions.splice(index, 1);
     setQuestions(newQuestions);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const surveyData = { title, description, questions };
-    
     console.log(surveyData);
-    
+
+    // Simulate submission success message
+    alert('Survey created successfully!');
+
+    // Clear form fields
     setTitle('');
     setDescription('');
     setQuestions([{ question: '' }]);
@@ -73,3 +82,6 @@ const CreateSurveyForm = () => {
 };
 
 export default CreateSurveyForm;
+
+
+  

@@ -1,69 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function SurveyList({ loggedIn }) {
+const SurveyList = () => {
   const [surveys, setSurveys] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loggedIn) {
-      navigate('/login');
-    } else {
-      fetchSurveys();
-    }
-  }, [loggedIn, navigate]);
+    fetchSurveys();
+  }, []);
 
-  const fetchSurveys = () => {
-    fetch('http://127.0.0.1:5000/surveys')
-      .then(response => response.json())
-      .then(data => {
+  const fetchSurveys = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/surveys');
+      if (response.ok) {
+        const data = await response.json();
         setSurveys(data);
-      })
-      .catch(error => {
-        console.error('Error fetching surveys:', error);
-      });
+      } else {
+        console.error('Failed to fetch surveys:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching surveys:', error);
+    }
   };
 
-  const handleFormSubmit = (event, surveyId) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const answer = formData.get('answer');
-
-    // Send the answer to the backend
-    fetch(`http://127.0.0.1:5000/surveys/${surveyId}/answers`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answer }),
-    })
-    .then(response => {
-      if (response.ok) {
-        console.log('Answer submitted successfully');
-      } else {
-        console.error('Failed to submit answer');
-      }
-    })
-    .catch(error => {
-      console.error('Error submitting answer:', error);
-    });
+  const handleSurveyClick = (surveyId) => {
+    navigate(`/surveys/${surveyId}`);
   };
 
   return (
-    <div className="survey-list">
+    <div>
       <h2>Survey List</h2>
-      {surveys.map(survey => (
-        <div key={survey.id}>
+      {surveys.map((survey) => (
+        <div key={survey.id} onClick={() => handleSurveyClick(survey.id)} style={{ cursor: 'pointer' }}>
           <h3>{survey.title}</h3>
           <p>{survey.description}</p>
-          <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
-            <label htmlFor={`answer-${survey.id}`}>Your Answer:</label>
-            <input type="text" id={`answer-${survey.id}`} name="answer" required />
-            <button type="submit">Submit</button>
-          </form>
           <hr />
         </div>
       ))}
     </div>
   );
-}
+};
 
 export default SurveyList;
+

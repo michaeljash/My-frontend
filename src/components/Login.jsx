@@ -8,17 +8,23 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userData = { username, password };
+    const userData = { email, password };
 
     try {
       // Replace with actual login API endpoint
       const response = await fetch('http://127.0.0.1:5000/login', {
-         method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-       },
-        body: JSON.stringify(userData),
-      });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userData
+        })
+      })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
+      
 
       // Temporary mock login
       // const response = { ok: true }; // Replace with actual response handling

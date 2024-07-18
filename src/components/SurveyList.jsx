@@ -58,7 +58,7 @@ function SurveyList() {
           <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
             {survey.questions && survey.questions.map((question) => (
               <div key={question.id}>
-                <label htmlFor={`answer-${question.id}`}>{question.content}</label>
+                <label htmlFor={`answer-${question.id}`}>{question.question_text}</label>
                 <input type="text" id={`answer-${question.id}`} name={question.id} required />
               </div>
             ))}

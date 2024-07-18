@@ -1,41 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-function SurveyList() {
-  const [surveys, setSurveys] = useState([]);
-  const navigate = useNavigate();
+const SurveyDetail = () => {
+  const { id } = useParams();
+  const [survey, setSurvey] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    fetchSurveys();
+    fetchSurvey();
   }, []);
 
-  const fetchSurveys = async () => {
+  const fetchSurvey = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/surveys');
+      const response = await fetch(`http://127.0.0.1:5000/surveys/${id}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      setSurveys(data);
+      setSurvey(data);
+      initializeAnswers(data.questions);
     } catch (error) {
-      console.error('Failed to fetch surveys:', error);
+      console.error('Failed to fetch survey:', error);
     }
   };
 
-  const handleFormSubmit = async (event, surveyId) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const answers = [];
+  const initializeAnswers = (questions) => {
+    const initialAnswers = {};
+    questions.forEach(question => {
+      initialAnswers[question.id] = '';
+    });
+    setAnswers(initialAnswers);
+  };
 
-    for (let [key, value] of formData.entries()) {
-      answers.push({ question_id: key, content: value });
-    }
+  const handleAnswerChange = (event, questionId) => {
+    const updatedAnswers = { ...answers };
+    updatedAnswers[questionId] = event.target.value;
+    setAnswers(updatedAnswers);
+  };
+
+  const handleSubmitAnswers = async (e) => {
+    e.preventDefault();
+
+    const answersData = Object.keys(answers).map(key => ({
+      question_id: key,
+      content: answers[key]
+    }));
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}/answers`, {
+      const response = await fetch(`http://127.0.0.1:5000/surveys/${id}/answers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers: answersData }),
       });
 
       if (!response.ok) {
@@ -43,32 +59,38 @@ function SurveyList() {
       }
 
       console.log('Answers submitted successfully');
+      setSubmitted(true);
     } catch (error) {
       console.error('Failed to submit answers:', error);
     }
   };
 
+  if (!survey) {
+    return <p>Loading...</p>;
+  }
+
   return (
-    <div className="survey-list">
-      <h2>Survey List</h2>
-      {surveys.map(survey => (
-        <div key={survey.id}>
-          <h3>{survey.title}</h3>
-          <p>{survey.description}</p>
-          <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
-            {survey.questions && survey.questions.map((question) => (
-              <div key={question.id}>
-                <label htmlFor={`answer-${question.id}`}>{question.question_text}</label>
-                <input type="text" id={`answer-${question.id}`} name={question.id} required />
-              </div>
-            ))}
-            <button type="submit">Submit Answers</button>
-          </form>
-          <hr />
-        </div>
-      ))}
+    <div className="survey-detail">
+      <h2>{survey.title}</h2>
+      <p>{survey.description}</p>
+      <form onSubmit={handleSubmitAnswers}>
+        {survey.questions && survey.questions.map((question) => (
+          <div key={question.id}>
+            <label htmlFor={`answer-${question.id}`}>{question.content}</label>
+            <input
+              type="text"
+              id={`answer-${question.id}`}
+              value={answers[question.id]}
+              onChange={(e) => handleAnswerChange(e, question.id)}
+              required
+            />
+          </div>
+        ))}
+        {!submitted && <button type="submit">Submit Answers</button>}
+        {submitted && <p>Answers submitted successfully!</p>}
+      </form>
     </div>
   );
-}
+};
 
-export default SurveyList;
+export default SurveyDetail;

@@ -1,100 +1,160 @@
-import React, { useEffect, useState } from 'react';
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
+
+// function SurveyList() {
+//   const [surveys, setSurveys] = useState([]);
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     fetchSurveys();
+//   }, []);
+
+//   const fetchSurveys = async () => {
+//     try {
+//       const response = await fetch('http://127.0.0.1:5000/surveys');
+//       const data = await response.json();
+//       setSurveys(data);
+//     } catch (error) {
+//       console.error('Failed to fetch surveys:', error);
+//     }
+//   };
+
+//   const handleFormSubmit = async (event, surveyId) => {
+//     event.preventDefault();
+//     const formData = new FormData(event.target);
+//     const answers = [];
+
+//     for (let [key, value] of formData.entries()) {
+//       answers.push({ question_id: key, content: value });
+//     }
+
+//     try {
+//       const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}/answers`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ answers }),
+//       });
+
+//       if (!response.ok) {
+//         throw new Error('Network response was not ok');
+//       }
+
+//       console.log('Answers submitted successfully');
+//     } catch (error) {
+//       console.error('Failed to submit answers:', error);
+//     }
+//   };
+
+//   return (
+//     <div className="survey-list">
+//       <h2>Survey List</h2>
+//       {surveys.map(survey => (
+//         <div key={survey.id}>
+//           <h3>{survey.title}</h3>
+//           <p>{survey.description}</p>
+//           <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
+//             {survey.questions && survey.questions.map((question) => (
+//               <div key={question.id}>
+//                 <label htmlFor={`answer-${question.id}`}>{question.content}</label>
+//                 <input type="text" id={`answer-${question.id}`} name={question.id} required />
+//               </div>
+//             ))}
+//             <button type="submit">Submit Answers</button>
+//           </form>
+//           <hr />
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+
+// export default SurveyList;
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SurveyList = () => {
+function SurveyList() {
   const [surveys, setSurveys] = useState([]);
-  const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSurveys = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/surveys');
-        if (!response.ok) {
-          throw new Error('Failed to fetch surveys');
-        }
-        const data = await response.json();
-        setSurveys(data);
-      } catch (error) {
-        console.error('Failed to fetch surveys:', error);
-      }
-    };
-
     fetchSurveys();
   }, []);
 
-  const handleAnswerChange = (surveyId, questionIndex, value) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [surveyId]: {
-        ...prevAnswers[surveyId],
-        [questionIndex]: value,
-      },
-    }));
-  };
-
-  const handleSubmit = async (e, surveyId) => {
-    e.preventDefault();
-    const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}/answers`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answers: answers[surveyId] }),
-    });
-
-    if (response.ok) {
-      alert('Answers submitted successfully!');
-      navigate('/surveys');
-    } else {
-      console.error('Failed to submit answers');
-    }
-
-  
   const fetchSurveys = async () => {
     try {
-      const response = await fetch('http://localhost:5000/surveys');
-      if (response.ok) {
-        const data = await response.json();
-        setSurveys(data);
-      } else {
-        console.error('Failed to fetch surveys:', response.statusText);
-      }
+      const response = await fetch('http://127.0.0.1:5000/surveys');
+      const data = await response.json();
+      setSurveys(data);
     } catch (error) {
-      console.error('Error fetching surveys:', error);
+      console.error('Failed to fetch surveys:', error);
     }
   };
 
-  const handleSurveyClick = (surveyId) => {
-    navigate(`/surveys/${surveyId}`);
+  const handleFormSubmit = async (event, surveyId) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const answers = [];
+
+    for (let [key, value] of formData.entries()) {
+      answers.push({ question_id: key, content: value });
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}/answers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      console.log('Answers submitted successfully');
+    } catch (error) {
+      console.error('Failed to submit answers:', error);
+    }
+  };
+
+  const handleDeleteSurvey = async (surveyId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.status === 204) {
+        // Survey deleted successfully
+        fetchSurveys(); // Refresh the survey list
+      } else {
+        throw new Error('Failed to delete survey');
+      }
+    } catch (error) {
+      console.error('Failed to delete survey:', error);
+    }
   };
 
   return (
-    <div>
+    <div className="survey-list">
       <h2>Survey List</h2>
       {surveys.map(survey => (
         <div key={survey.id}>
           <h3>{survey.title}</h3>
           <p>{survey.description}</p>
-          <form onSubmit={(e) => handleSubmit(e, survey.id)}>
-            {survey.questions.map((question, index) => (
-              <div key={index}>
-                <label>{question}</label>
-                <input
-                  type="text"
-                  value={answers[survey.id]?.[index] || ''}
-                  onChange={(e) => handleAnswerChange(survey.id, index, e.target.value)}
-                  required
-                />
+          <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
+            {survey.questions && survey.questions.map((question) => (
+              <div key={question.id}>
+                <label htmlFor={`answer-${question.id}`}>{question.content}</label>
+                <input type="text" id={`answer-${question.id}`} name={question.id} required />
               </div>
             ))}
             <button type="submit">Submit Answers</button>
           </form>
-          <div onClick={() => handleSurveyClick(survey.id)} style={{ cursor: 'pointer' }}>
-            <h3>{survey.title}</h3>
-            <p>{survey.description}</p>
-            <hr />
-          </div>
+          <button onClick={() => handleDeleteSurvey(survey.id)}>Delete Survey</button>
+          <hr />
         </div>
       ))}
     </div>
   );
-  export default SurveyList;
+}
+
+export default SurveyList;

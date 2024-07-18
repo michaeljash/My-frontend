@@ -5,8 +5,6 @@ import AboutUs from './components/AboutUs';
 import ContactUs from './components/ContactUs';
 import SurveyList from './components/SurveyList';
 import CreateSurveyForm from './components/CreateSurveyForm';
-import Login from './components/Login';
-import CreateAccountForm from './components/CreateAccountForm';
 import CreateAccountForm from './components/CreateAccountForm';
 import Login from './components/Login';
 import './App.css';

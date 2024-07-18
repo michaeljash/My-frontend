@@ -4,87 +4,65 @@ import { useNavigate } from 'react-router-dom';
 const CreateSurveyForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [questions, setQuestions] = useState([{ content: '' }]);
+  const [questions, setQuestions] = useState(['']);
   const navigate = useNavigate();
 
-  const handleTitleChange = (e) => setTitle(e.target.value);
-  const handleDescriptionChange = (e) => setDescription(e.target.value);
-
-  const handleQuestionChange = (index, event) => {
-    const newQuestions = [...questions];
-    newQuestions[index].content = event.target.value;
-    setQuestions(newQuestions);
+  const handleAddQuestion = () => {
+    setQuestions([...questions, '']);
   };
 
-  const handleAddQuestion = () => setQuestions([...questions, { content: '' }]);
-
   const handleRemoveQuestion = (index) => {
-    const newQuestions = questions.filter((_, i) => i !== index);
+    setQuestions(questions.filter((_, i) => i !== index));
+  };
+
+  const handleQuestionChange = (index, value) => {
+    const newQuestions = [...questions];
+    newQuestions[index] = value;
     setQuestions(newQuestions);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const surveyData = {
-      title,
-      description,
-      questions: questions.map(q => ({ question_text: q.content }))
-    };
+    const response = await fetch('http://127.0.0.1:5000/surveys', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, description, questions })
+    });
 
-    try {
-      const response = await fetch('http://127.0.0.1:5000/surveys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(surveyData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      
-      const responseData = await response.json();
-      console.log('Survey created successfully:', responseData);
-      navigate('/surveys'); // Redirect to SurveyList page after successful creation
-    } catch (error) {
-      console.error('Failed to create survey:', error);
+    if (response.ok) {
+      navigate('/surveys');
     }
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Create Survey</h2>
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={handleTitleChange}
-          required
-        />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={handleDescriptionChange}
-          required
-        />
-        {questions.map((q, index) => (
+        <label>
+          Title:
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </label>
+        <br />
+        <label>
+          Description:
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required />
+        </label>
+        <br />
+        <h3>Questions</h3>
+        {questions.map((question, index) => (
           <div key={index}>
             <input
               type="text"
-              placeholder={`Question ${index + 1}`}
-              value={q.content}
-              onChange={(e) => handleQuestionChange(index, e)}
+              value={question}
+              onChange={(e) => handleQuestionChange(index, e.target.value)}
               required
             />
-            <button type="button" onClick={() => handleRemoveQuestion(index)}>
-              Remove Question
-            </button>
+            <button type="button" onClick={() => handleRemoveQuestion(index)}>Remove</button>
           </div>
         ))}
-        <button type="button" onClick={handleAddQuestion}>
-          Add Question
-        </button>
+        <button type="button" onClick={handleAddQuestion}>Add Question</button>
+        <br />
         <button type="submit">Create Survey</button>
       </form>
     </div>

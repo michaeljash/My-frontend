@@ -47,12 +47,30 @@ const SurveyList = () => {
     } else {
       console.error('Failed to submit answers');
     }
+
+  
+  const fetchSurveys = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/surveys');
+      if (response.ok) {
+        const data = await response.json();
+        setSurveys(data);
+      } else {
+        console.error('Failed to fetch surveys:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching surveys:', error);
+    }
+  };
+
+  const handleSurveyClick = (surveyId) => {
+    navigate(`/surveys/${surveyId}`);
   };
 
   return (
     <div>
       <h2>Survey List</h2>
-      {surveys.map((survey) => (
+      {surveys.map(survey => (
         <div key={survey.id}>
           <h3>{survey.title}</h3>
           <p>{survey.description}</p>
@@ -70,10 +88,13 @@ const SurveyList = () => {
             ))}
             <button type="submit">Submit Answers</button>
           </form>
+          <div onClick={() => handleSurveyClick(survey.id)} style={{ cursor: 'pointer' }}>
+            <h3>{survey.title}</h3>
+            <p>{survey.description}</p>
+            <hr />
+          </div>
         </div>
       ))}
     </div>
   );
-};
-
-export default SurveyList;
+  export default SurveyList;

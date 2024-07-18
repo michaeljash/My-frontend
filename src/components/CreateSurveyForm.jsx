@@ -7,6 +7,7 @@ const CreateSurveyForm = () => {
   const [questions, setQuestions] = useState(['']);
   const navigate = useNavigate();
 
+
   const handleAddQuestion = () => {
     setQuestions([...questions, '']);
   };
@@ -18,11 +19,32 @@ const CreateSurveyForm = () => {
   const handleQuestionChange = (index, value) => {
     const newQuestions = [...questions];
     newQuestions[index] = value;
+
+  const navigate = useNavigate();
+
+  const handleTitleChange = (e) => setTitle(e.target.value);
+  const handleDescriptionChange = (e) => setDescription(e.target.value);
+
+  const handleQuestionChange = (index, event) => {
+    const newQuestions = [...questions];
+    newQuestions[index].question = event.target.value;
+    setQuestions(newQuestions);
+  };
+
+  const handleAddQuestion = () => {
+    setQuestions([...questions, { question: '' }]);
+  };
+
+  const handleRemoveQuestion = (index) => {
+    const newQuestions = [...questions];
+    newQuestions.splice(index, 1);
+
     setQuestions(newQuestions);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
 
     const response = await fetch('http://127.0.0.1:5000/surveys', {
       method: 'POST',
@@ -33,6 +55,18 @@ const CreateSurveyForm = () => {
     if (response.ok) {
       navigate('/surveys');
     }
+
+    const surveyData = { title, description, questions };
+    console.log(surveyData);
+
+    // Simulate submission success message
+    alert('Survey created successfully!');
+
+    // Clear form fields
+    setTitle('');
+    setDescription('');
+    setQuestions([{ question: '' }]);
+
   };
 
   return (
@@ -67,6 +101,7 @@ const CreateSurveyForm = () => {
       </form>
     </div>
   );
-};
+}};
+
 
 export default CreateSurveyForm;

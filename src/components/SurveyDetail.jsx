@@ -28,6 +28,23 @@ const SurveyDetail = () => {
     }
   }, [surveyId]);
 
+ 
+
+  const fetchSurveyDetails = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/surveys/${surveyId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSurvey(data);
+        initializeAnswers(data.questions); // Assuming questions are part of survey details
+      } else {
+        console.error('Failed to fetch survey details:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching survey details:', error);
+    }
+  };
+
   const initializeAnswers = (questions) => {
     const initialAnswers = {};
     questions.forEach((question) => {
@@ -47,7 +64,7 @@ const SurveyDetail = () => {
     event.preventDefault();
     try {
       setSubmitting(true);
-      const response = await fetch(`http://127.0.0.1:5000/surveys/${surveyId}/submit-answers`, {
+      const response = await fetch(`http://localhost:5000/surveys/${surveyId}/submit-answers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +109,7 @@ const SurveyDetail = () => {
         </button>
       </form>
     </div>
-  );
-};
+  )};
+
 
 export default SurveyDetail;

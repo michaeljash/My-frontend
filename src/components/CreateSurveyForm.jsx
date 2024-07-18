@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CreateSurveyForm = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [userId, setUserId] = useState(''); 
-  const [questions, setQuestions] = useState([{ question: '' }]);
+  const [questions, setQuestions] = useState([{ content: '' }]);
+  const navigate = useNavigate();
 
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDescriptionChange = (e) => setDescription(e.target.value);
-  const handleUserIdChange = (e) => setUserId(e.target.value); 
 
   const handleQuestionChange = (index, event) => {
     const newQuestions = [...questions];
-    newQuestions[index].question = event.target.value;
+    newQuestions[index].content = event.target.value;
     setQuestions(newQuestions);
   };
 
-  const handleAddQuestion = () => setQuestions([...questions, { question: '' }]);
+  const handleAddQuestion = () => setQuestions([...questions, { content: '' }]);
 
   const handleRemoveQuestion = (index) => {
     const newQuestions = questions.filter((_, i) => i !== index);
@@ -25,41 +25,29 @@ const CreateSurveyForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
+    const surveyData = {
+      title,
+      description,
+      questions: questions.map(q => ({ question_text: q.content }))
+    };
+
     try {
-      const surveyData = {
-        title,
-        description,
-        user: {
-          email: userId  
-        },
-        questions: questions.map(q => ({
-          content: q.question,
-          type: 'default'  
-        }))
-      };
-  
       const response = await fetch('http://127.0.0.1:5000/surveys', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(surveyData),
       });
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Survey created successfully:', data);
 
-        setTitle('');
-        setDescription('');
-        setUserId('');
-        setQuestions([{ question: '' }]);
-      } else {
-        console.error('Failed to create survey');
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
+      
+      const responseData = await response.json();
+      console.log('Survey created successfully:', responseData);
+      navigate('/surveys');
     } catch (error) {
-      console.error('Error creating survey:', error);
+      console.error('Failed to create survey:', error);
     }
   };
 
@@ -80,19 +68,12 @@ const CreateSurveyForm = () => {
           onChange={handleDescriptionChange}
           required
         />
-        <input
-          type="text"
-          placeholder="User Email"
-          value={userId}
-          onChange={handleUserIdChange}
-          required
-        />
         {questions.map((q, index) => (
           <div key={index}>
             <input
               type="text"
               placeholder={`Question ${index + 1}`}
-              value={q.question}
+              value={q.content}
               onChange={(e) => handleQuestionChange(index, e)}
               required
             />

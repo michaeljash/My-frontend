@@ -51,18 +51,17 @@ function SurveyList() {
   return (
     <div className="survey-list">
       <h2>Survey List</h2>
-      {surveys.map((survey) => (
+      {surveys.map(survey => (
         <div key={survey.id}>
           <h3>{survey.title}</h3>
           <p>{survey.description}</p>
           <form onSubmit={(event) => handleFormSubmit(event, survey.id)}>
-            {survey.questions &&
-              survey.questions.map((question) => (
-                <div key={question.id}>
-                  <label htmlFor={`answer-${question.id}`}>{question.content}</label>
-                  <input type="text" id={`answer-${question.id}`} name={question.id} required />
-                </div>
-              ))}
+            {survey.questions && survey.questions.map((question) => (
+              <div key={question.id}>
+                <label htmlFor={`answer-${question.id}`}>{question.content}</label>
+                <input type="text" id={`answer-${question.id}`} name={question.id} required />
+              </div>
+            ))}
             <button type="submit">Submit Answers</button>
           </form>
           <hr />
